@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['liam-nichols@cookpad.jp']
   spec.description   = %q{A short description of danger-localized_strings.}
   spec.summary       = %q{A longer description of danger-localized_strings.}
-  spec.homepage      = 'https://github.com/Liam Nichols/danger-localized_strings'
+  spec.homepage      = 'https://ghe.ckpd.co/liam-nichols/danger-localized_strings'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($/)
