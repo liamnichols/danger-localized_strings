@@ -1,4 +1,6 @@
-require 'json'
+# frozen_string_literal: true
+
+require "json"
 
 module Danger
   # This is your plugin class. Any attributes or methods you expose here will
@@ -19,11 +21,9 @@ module Danger
   # @tags monday, weekends, time, rattata
   #
   class DangerLocalizedStrings < Plugin
-
     # Verify
     #
     def verify(file_name, development_language, expected_languages = nil, search_path = ".")
-
       # Find all of the .strings files with the name provided
       found_file_paths = Dir.glob("#{search_path}/**/#{file_name}.strings")
 
@@ -35,13 +35,13 @@ module Danger
       end
 
       # Check that the development language was found
-      if translations[development_language] == nil then
-        fail "Unable to find strings file for development language (#{search_path}/**/#{development_language}.lproj/#{file_name}.strings)"
+      if translations[development_language].nil?
+        warn "Unable to find strings file for development language (#{search_path}/**/#{development_language}.lproj/#{file_name}.strings)"
         return
       end
 
       # Check for the expected languages if they've been provided
-      if expected_languages != nil then
+      unless expected_languages.nil?
         compare_languages(expected_languages, translations.keys, file_name)
       end
 
@@ -50,9 +50,8 @@ module Danger
 
       # Loop each plist
       translations.each do |language, file_path|
-
         # Make sure that the plist is valid
-        if !is_valid_plist(file_path) then
+        unless valid_plist(file_path)
           warn "Invalid plist file '#{file_path}'"
           next
         end
@@ -73,7 +72,6 @@ module Danger
     #
     #
     def compare_languages(expected, actual, file_name)
-
       # Work out what languages are missing and what unexpected ones are present
       missing = expected - actual
       unexpected = actual - expected
@@ -90,15 +88,14 @@ module Danger
 
       # Return the results as well
       {
-        :missing => missing,
-        :unexpected => unexpected
+        missing: missing,
+        unexpected: unexpected
       }
     end
 
     # Compare a hash of translations
     #
     def compare_translations(expected, actual, file_name, language)
-
       # Work out what keys are missing and what unexpected ones are present
       missing = expected.keys - actual.keys
       unexpected = actual.keys - expected.keys
@@ -115,14 +112,14 @@ module Danger
 
       # Return the results as well
       {
-        :missing => missing,
-        :unexpected => unexpected
+        missing: missing,
+        unexpected: unexpected
       }
     end
 
     # Makes sure that the given plist is valid
     #
-    def is_valid_plist(file_path)
+    def valid_plist(file_path)
       result = `plutil -lint "#{file_path}" | grep ": OK" -c` # TODO: nicer way to do this?
       result == "1\n"
     end
@@ -134,6 +131,6 @@ module Danger
       JSON.parse(json_data)
     end
 
-    private :compare_languages, :compare_translations, :is_valid_plist, :load_plist
+    private :compare_languages, :compare_translations, :valid_plist, :load_plist
   end
 end
