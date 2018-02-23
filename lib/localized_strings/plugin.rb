@@ -7,9 +7,9 @@ module Danger
   #
   class DangerLocalizedStrings < Plugin
     # Verify
+    # @returns [void]
     #
     def verify(file_name, development_language, expected_languages = nil, search_path = ".")
-
       # Find all of the .strings files with the name provided
       found_file_paths = find_strings_files(search_path, file_name)
       return unless found_file_paths.count.positive?
@@ -23,13 +23,13 @@ module Danger
 
       # Check that the development language was found
       if translations[development_language].nil?
-        warn "Unable to find strings file for development language (#{search_path}/**/#{development_language}.lproj/#{file_name}.strings)"
-        return
+        return fail "Unable to find strings file for development_language. Missing file `#{development_language}.lproj/#{file_name}.strings`"
       end
 
       # Check for the expected languages if they've been provided
       unless expected_languages.nil?
-        compare_languages(expected_languages, translations.keys, file_name)
+        result = compare_languages(expected_languages, translations.keys, file_name)
+        return unless result["should_continue"]
       end
 
       # Get the translations for the development language
@@ -77,18 +77,19 @@ module Danger
 
       # Warn about anything that is missing
       missing.each do |language|
-        warn "Unable to find strings file named '#{file_name}.strings' for language '#{language}'"
+        fail "Unable to find strings file named `#{file_name}.strings` for language `#{language}`"
       end
 
       # Warn about any extra strings files that we found
       unexpected.each do |language|
-        warn "Found unexpected strings file named '#{file_name}.strings' for language '#{language}'"
+        fail "Found unexpected strings file named `#{file_name}.strings` for language `#{language}`"
       end
 
       # Return the results as well
       {
         missing: missing,
-        unexpected: unexpected
+        unexpected: unexpected,
+        should_continue: missing.count.zero? && unexpected.count.zero?
       }
     end
 
