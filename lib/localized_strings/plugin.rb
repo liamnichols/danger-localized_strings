@@ -9,8 +9,10 @@ module Danger
     # Verify
     #
     def verify(file_name, development_language, expected_languages = nil, search_path = ".")
+
       # Find all of the .strings files with the name provided
-      found_file_paths = Dir.glob("#{search_path}/**/#{file_name}.strings")
+      found_file_paths = find_strings_files(search_path, file_name)
+      return unless found_file_paths.count.positive?
 
       # Map to a hash of languages and their paths
       translations = {}
@@ -50,6 +52,18 @@ module Danger
         # Compare the translations
         compare_translations(development_strings, strings, file_name, language)
       end
+    end
+
+    # Finds the given .strings files with a matching name in the given search path.
+    # If there are no results then a failure is logged.
+    #
+    # @returns Array<String>
+    #
+    def find_strings_files(search_path, file_name)
+      search_query = File.join(search_path, "**", "#{file_name}.strings")
+      results = Dir.glob(search_query)
+      fail "Unable to find any strings files matching `#{search_query}`" unless results.count.positive?
+      results
     end
 
     # Compares an array of languages for a given file name and warns if any are
@@ -116,6 +130,6 @@ module Danger
       JSON.parse(json_data)
     end
 
-    private :compare_languages, :compare_translations, :valid_plist, :load_plist
+    private :find_strings_files, :compare_languages, :compare_translations, :valid_plist, :load_plist
   end
 end
