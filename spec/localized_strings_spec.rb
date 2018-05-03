@@ -70,6 +70,23 @@ module Danger
         expect(@dangerfile.status_report[:warnings]).to eq([])
         expect(@dangerfile.status_report[:messages]).to eq(["Successfully verified 1 strings across 3 languages"])
       end
+
+      it "should error when a key is found in the value" do
+        search_path = File.join(Dir.pwd, "spec", "resources", "key_for_value")
+        @localized_strings.verify("Localizable", "en", ["en", "es", "fr"], search_path)
+        expect(@dangerfile.status_report[:errors]).to eq(["String `identifier_for_string_foo` value matches key in `Localizable.strings` for language `en`"])
+        expect(@dangerfile.status_report[:warnings]).to eq([])
+        expect(@dangerfile.status_report[:messages]).to eq(["Successfully verified 1 strings across 3 languages"])
+      end
+
+      it "should not error when a key is found in the value if ignore_if_key_is_value is set" do
+        search_path = File.join(Dir.pwd, "spec", "resources", "key_for_value")
+        @localized_strings.ignore_if_key_is_value = true
+        @localized_strings.verify("Localizable", "en", ["en", "es", "fr"], search_path)
+        expect(@dangerfile.status_report[:errors]).to eq([])
+        expect(@dangerfile.status_report[:warnings]).to eq([])
+        expect(@dangerfile.status_report[:messages]).to eq(["Successfully verified 1 strings across 3 languages"])
+      end
     end
   end
 end

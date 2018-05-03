@@ -6,6 +6,9 @@ module Danger
   #
   #
   class DangerLocalizedStrings < Plugin
+    # Ignores checks to ensure that the key of a string is not present in the value of the string when set to `true`.
+    attr_accessor :ignore_if_key_is_value
+
     # Verify
     # @returns [void]
     #
@@ -43,11 +46,14 @@ module Danger
           next
         end
 
-        # No point comparing the development language
-        next unless language != development_language
-
         # Load the translations
         strings = load_plist(file_path)
+
+        # Check for bad values if enabled
+        check_for_values_as_keys(strings, file_name, language) unless @ignore_if_key_is_value
+
+        # No point comparing the development language
+        next unless language != development_language
 
         # Compare the translations
         compare_translations(development_strings, strings, file_name, language)
@@ -117,6 +123,14 @@ module Danger
         missing: missing,
         unexpected: unexpected
       }
+    end
+
+    # Checks the key and value of each hash and errors if the value == key
+    #
+    def check_for_values_as_keys(strings, file_name, language)
+      strings.each do |key, value|
+        fail "String `#{key}` value matches key in `#{file_name}.strings` for language `#{language}`" if key == value
+      end
     end
 
     # Makes sure that the given plist is valid
