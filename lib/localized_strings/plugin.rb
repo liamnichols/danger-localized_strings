@@ -29,7 +29,7 @@ module Danger
       # Check for the expected languages if they've been provided
       unless expected_languages.nil?
         result = compare_languages(expected_languages, translations.keys, file_name)
-        return unless result["should_continue"]
+        return unless result[:should_continue]
       end
 
       # Get the translations for the development language
@@ -52,6 +52,8 @@ module Danger
         # Compare the translations
         compare_translations(development_strings, strings, file_name, language)
       end
+
+      message "Successfully verified #{development_strings.count} strings across #{translations.count} languages"
     end
 
     # Finds the given .strings files with a matching name in the given search path.
