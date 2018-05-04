@@ -15,8 +15,9 @@ This plugin exposes a simple `verify` function that can do the following:
 
 ## Usage
 
+    localized_stirngs.development_language = "en"
     localized_strings.ignore_if_key_is_value = false
-    localized_strings.verify("Localizable", "en", ["en", "es", "fr"], "./Example/SupportingFiles/")
+    localized_strings.verify("Localizable", ["en", "es", "fr"], "./Example/SupportingFiles/")
 
 ## Development
 

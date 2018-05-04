@@ -6,13 +6,20 @@ module Danger
   #
   #
   class DangerLocalizedStrings < Plugin
+
+    # The development language set in the project. This property must be set for the plugin to work.
+    attr_accessor :development_language
+
     # Ignores checks to ensure that the key of a string is not present in the value of the string when set to `true`.
     attr_accessor :ignore_if_key_is_value
 
     # Verify
     # @returns [void]
     #
-    def verify(file_name, development_language, expected_languages = nil, search_path = ".")
+    def verify(file_name, expected_languages = nil, search_path = ".")
+      # Ensure the @development_language was set
+      return fail "development_lanugage has not been set" if @development_language.nil?
+
       # Find all of the .strings files with the name provided
       found_file_paths = find_strings_files(search_path, file_name)
       return unless found_file_paths.count.positive?
@@ -25,7 +32,7 @@ module Danger
       end
 
       # Check that the development language was found
-      if translations[development_language].nil?
+      if translations[@development_language].nil?
         return fail "Unable to find strings file for development_language. Missing file `#{development_language}.lproj/#{file_name}.strings`"
       end
 
