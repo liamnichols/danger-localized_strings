@@ -6,9 +6,13 @@ module Danger
   #
   #
   class DangerLocalizedStrings < Plugin
-
     # The development language set in the project. This property must be set for the plugin to work.
     attr_accessor :development_language
+
+    # An array of expected languages. Setting this property will cause the validator to ensure that
+    #  there are strings files present and valid for the given languages specifically. If a language
+    #  is missing or if there are different langues, warnings will be generated. Default value is nil.
+    attr_accessor :expected_languages
 
     # Ignores checks to ensure that the key of a string is not present in the value of the string when set to `true`.
     attr_accessor :ignore_if_key_is_value
@@ -16,7 +20,7 @@ module Danger
     # Verify
     # @returns [void]
     #
-    def verify(file_name, expected_languages = nil, search_path = ".")
+    def verify(file_name, search_path = ".")
       # Ensure the @development_language was set
       return fail "development_lanugage has not been set" if @development_language.nil?
 
@@ -37,8 +41,8 @@ module Danger
       end
 
       # Check for the expected languages if they've been provided
-      unless expected_languages.nil?
-        result = compare_languages(expected_languages, translations.keys, file_name)
+      unless @expected_languages.nil?
+        result = compare_languages(@expected_languages, translations.keys, file_name)
         return unless result[:should_continue]
       end
 

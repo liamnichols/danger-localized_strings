@@ -14,6 +14,7 @@ module Danger
         @dangerfile = testing_dangerfile
         @localized_strings = @dangerfile.localized_strings
         @localized_strings.development_language = "en"
+        @localized_strings.expected_languages = ["en", "es", "fr"]
       end
 
       it "should error if the development_language is not set" do
@@ -35,7 +36,7 @@ module Danger
 
       it "should work with specified search_path" do
         allow(Dir).to receive(:glob).and_return []
-        @localized_strings.verify("Localizable", nil, "/Foo/Bar")
+        @localized_strings.verify("Localizable", "/Foo/Bar")
         expect(@dangerfile.status_report[:errors]).to eq(["Unable to find any strings files matching `/Foo/Bar/**/Localizable.strings`"])
         expect(@dangerfile.status_report[:warnings]).to eq([])
         expect(@dangerfile.status_report[:messages]).to eq([])
@@ -43,7 +44,7 @@ module Danger
 
       it "should allow search_path to have a trailing slash" do
         allow(Dir).to receive(:glob).and_return []
-        @localized_strings.verify("Localizable", nil, "/Foo/Bar/")
+        @localized_strings.verify("Localizable", "/Foo/Bar/")
         expect(@dangerfile.status_report[:errors]).to eq(["Unable to find any strings files matching `/Foo/Bar/**/Localizable.strings`"])
         expect(@dangerfile.status_report[:warnings]).to eq([])
         expect(@dangerfile.status_report[:messages]).to eq([])
@@ -51,7 +52,7 @@ module Danger
 
       it "should error with missing development_language" do
         search_path = File.join(Dir.pwd, "spec", "resources", "missing_development_language")
-        @localized_strings.verify("Localizable", nil, search_path)
+        @localized_strings.verify("Localizable", search_path)
         expect(@dangerfile.status_report[:errors]).to eq(["Unable to find strings file for development_language. Missing file `en.lproj/Localizable.strings`"])
         expect(@dangerfile.status_report[:warnings]).to eq([])
         expect(@dangerfile.status_report[:messages]).to eq([])
@@ -59,7 +60,8 @@ module Danger
 
       it "should error due to missing language" do
         search_path = File.join(Dir.pwd, "spec", "resources", "valid")
-        @localized_strings.verify("Localizable", ["en", "es", "fr", "ar"], search_path)
+        @localized_strings.expected_languages = ["en", "es", "fr", "ar"]
+        @localized_strings.verify("Localizable", search_path)
         expect(@dangerfile.status_report[:errors]).to eq(["Unable to find strings file named `Localizable.strings` for language `ar`"])
         expect(@dangerfile.status_report[:warnings]).to eq([])
         expect(@dangerfile.status_report[:messages]).to eq([])
@@ -67,7 +69,8 @@ module Danger
 
       it "should error due to unexpected language" do
         search_path = File.join(Dir.pwd, "spec", "resources", "valid")
-        @localized_strings.verify("Localizable", ["en", "es"], search_path)
+        @localized_strings.expected_languages = ["en", "es"]
+        @localized_strings.verify("Localizable", search_path)
         expect(@dangerfile.status_report[:errors]).to eq(["Found unexpected strings file named `Localizable.strings` for language `fr`"])
         expect(@dangerfile.status_report[:warnings]).to eq([])
         expect(@dangerfile.status_report[:messages]).to eq([])
@@ -75,7 +78,7 @@ module Danger
 
       it "should not error when the language files are found" do
         search_path = File.join(Dir.pwd, "spec", "resources", "valid")
-        @localized_strings.verify("Localizable", ["en", "es", "fr"], search_path)
+        @localized_strings.verify("Localizable", search_path)
         expect(@dangerfile.status_report[:errors]).to eq([])
         expect(@dangerfile.status_report[:warnings]).to eq([])
         expect(@dangerfile.status_report[:messages]).to eq(["Successfully verified 1 strings across 3 languages"])
@@ -83,7 +86,7 @@ module Danger
 
       it "should error when a key is found in the value" do
         search_path = File.join(Dir.pwd, "spec", "resources", "key_for_value")
-        @localized_strings.verify("Localizable", ["en", "es", "fr"], search_path)
+        @localized_strings.verify("Localizable", search_path)
         expect(@dangerfile.status_report[:errors]).to eq(["String `identifier_for_string_foo` value matches key in `Localizable.strings` for language `en`"])
         expect(@dangerfile.status_report[:warnings]).to eq([])
         expect(@dangerfile.status_report[:messages]).to eq(["Successfully verified 1 strings across 3 languages"])
@@ -92,7 +95,7 @@ module Danger
       it "should not error when a key is found in the value if ignore_if_key_is_value is set" do
         search_path = File.join(Dir.pwd, "spec", "resources", "key_for_value")
         @localized_strings.ignore_if_key_is_value = true
-        @localized_strings.verify("Localizable", ["en", "es", "fr"], search_path)
+        @localized_strings.verify("Localizable", search_path)
         expect(@dangerfile.status_report[:errors]).to eq([])
         expect(@dangerfile.status_report[:warnings]).to eq([])
         expect(@dangerfile.status_report[:messages]).to eq(["Successfully verified 1 strings across 3 languages"])
