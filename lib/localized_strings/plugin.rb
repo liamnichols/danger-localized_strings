@@ -36,9 +36,7 @@ module Danger
       end
 
       # Check that the development language was found
-      if translations[@development_language].nil?
-        return fail "Unable to find strings file for development_language. Missing file `#{development_language}.lproj/#{file_name}.strings`"
-      end
+      return fail "Unable to find strings file for development_language. Missing file `#{development_language}.lproj/#{file_name}.strings`" if translations[@development_language].nil?
 
       # Check for the expected languages if they've been provided
       unless @expected_languages.nil?
