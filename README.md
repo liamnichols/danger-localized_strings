@@ -1,6 +1,13 @@
 # danger-localized_strings
 
-A description of danger-localized_strings.
+danger-localized_strings is a Danger plugin that provides validation methods to catch missing or invalid localizations in your projects.
+
+This plugin exposes a simple `verify` function that can do the following:
+
+- Validate strings files are valid plist format
+- Ensure that expected localization languages are present
+- Check that all keys from the development language are present in the localized languages
+- Ensure that no localized value of a translation is set to the `key` by mistake (A common issue that can occour during xcodebuild imports).
 
 ## Installation
 
@@ -8,8 +15,8 @@ A description of danger-localized_strings.
 
 ## Usage
 
-    Methods and attributes from this plugin are available in
-    your `Dangerfile` under the `localized_strings` namespace.
+    localized_strings.ignore_if_key_is_value = false
+    localized_strings.verify("Localizable", "en", ["en", "es", "fr"], "./Example/SupportingFiles/")
 
 ## Development
 
