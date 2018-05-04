@@ -158,6 +158,6 @@ module Danger
       JSON.parse(json_data)
     end
 
-    private :find_strings_files, :compare_languages, :compare_translations, :valid_plist, :load_plist
+    private :find_strings_files, :compare_languages, :compare_translations, :check_for_values_as_keys, :valid_plist, :load_plist
   end
 end
